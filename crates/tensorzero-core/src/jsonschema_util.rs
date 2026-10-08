@@ -139,16 +139,19 @@ impl JSONSchema {
     ///
     /// If the schema hasn't been compiled yet, it will be compiled asynchronously first.
     pub async fn validate(&self, instance: &Value) -> Result<(), Error> {
-        self.get_or_init_compiled()
-            .await?
-            .validate(instance)
-            .map_err(|e| {
-                Error::new(ErrorDetails::JsonSchemaValidation {
-                    messages: vec![e.to_string()],
-                    data: Box::new(instance.clone()),
-                    schema: Box::new(self.value.clone()),
-                })
-            })
+        let validator = self.get_or_init_compiled().await?;
+        let errors: Vec<String> = validator
+            .iter_errors(instance)
+            .map(|e| e.to_string())
+            .collect();
+        if !errors.is_empty() {
+            return Err(Error::new(ErrorDetails::JsonSchemaValidation {
+                messages: errors,
+                data: Box::new(instance.clone()),
+                schema: Box::new(self.value.clone()),
+            }));
+        }
+        Ok(())
     }
 
     /// Ensures that the schema is valid by forcing compilation.
