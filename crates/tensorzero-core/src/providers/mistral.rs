@@ -961,7 +961,10 @@ fn mistral_to_tensorzero_chunk(
 ) -> Result<ProviderInferenceResponseChunk, Error> {
     if chunk.choices.len() > 1 {
         return Err(ErrorDetails::InferenceServer {
-            message: "Response has invalid number of choices: {}. Expected 1.".to_string(),
+            message: format!(
+                "Response has invalid number of choices: {}. Expected 1.",
+                chunk.choices.len()
+            ),
             provider_type: PROVIDER_TYPE.to_string(),
             api_type: ApiType::ChatCompletions,
             raw_request: None,

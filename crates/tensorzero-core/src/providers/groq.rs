@@ -1378,7 +1378,10 @@ fn groq_to_tensorzero_chunk(
 ) -> Result<ProviderInferenceResponseChunk, Error> {
     if chunk.choices.len() > 1 {
         return Err(ErrorDetails::InferenceServer {
-            message: "Response has invalid number of choices: {}. Expected 1.".to_string(),
+            message: format!(
+                "Response has invalid number of choices: {}. Expected 1.",
+                chunk.choices.len()
+            ),
             raw_request: None,
             raw_response: Some(raw_message.clone()),
             provider_type: PROVIDER_TYPE.to_string(),
